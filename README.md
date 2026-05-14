@@ -17,14 +17,20 @@ flowchart TB
 
 Jagah is a pure client-side S3 file explorer. It lets you connect to an AWS S3 bucket using temporary credentials and then browse folders, upload files, rename objects, and delete objects, all from your browser.
 
-## What it does
+## 1. Secure Login
+![Login Screen](docs/login.png)
+**Features:**
+- **Strictly Ephemeral:** Your AWS credentials (Access Key ID, Secret Key, Region, Bucket Name) are kept exclusively in volatile browser memory.
+- **No Backend:** We do not store, log, or transmit your keys anywhere except directly to AWS. Refreshing or closing the tab instantly destroys all access.
+- **Premium UI:** Warm, skinnish light-mode tone with billion-dollar B2B SaaS aesthetic components.
 
-- Connects to a single S3 bucket using user-provided credentials.
-- Lists folders and files with a breadcrumb-style explorer.
-- Uploads new files to the current prefix.
-- Renames files by copying and deleting objects.
-- Deletes files from the bucket.
-- Keeps credentials only in browser memory (no backend).
+## 2. Bucket Explorer
+![Explorer Screen](docs/explorer.png)
+**Features:**
+- **List-Wise View:** Clean, professional data table displaying file names, upload dates, and exact file sizes.
+- **Breadcrumb Navigation:** Navigate seamlessly through S3 folder structures.
+- **Quick Actions:** One-click capabilities to Download (via secure presigned URLs), Rename (via copy & delete), and Delete files.
+- **Live Refresh & Upload:** Dedicated actions to quickly fetch the latest bucket status or upload new files directly to the current prefix.
 
 ## How it works
 
