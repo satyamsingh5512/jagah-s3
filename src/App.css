@@ -331,27 +331,43 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  flex: 1;
+  min-height: 50vh;
+  width: 100%;
   gap: 1.5rem;
-  color: var(--text-muted);
 }
 
 .moving-db {
-  animation: bounceDb 1.5s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;
-  color: var(--text-highlight);
+  animation: floatAndPulse 3s ease-in-out infinite;
+  color: var(--accent);
 }
 
 .loading-text {
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
+  font-size: 0.95rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text-highlight);
+  animation: pulseText 3s ease-in-out infinite;
 }
 
-@keyframes bounceDb {
-  0% { transform: translateY(0) scale(1); opacity: 0.7; }
-  100% { transform: translateY(-10px) scale(1.05); opacity: 1; text-shadow: 0 5px 15px rgba(255,255,255,0.2); }
+@keyframes floatAndPulse {
+  0%, 100% { 
+    transform: translateY(0) scale(1); 
+    opacity: 0.7; 
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+  }
+  50% { 
+    transform: translateY(-12px) scale(1.05); 
+    opacity: 1; 
+    filter: drop-shadow(0 12px 20px rgba(210, 166, 121, 0.3));
+  }
 }
 
+@keyframes pulseText {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
 /* Footer */
 .app-footer {
   display: flex;
