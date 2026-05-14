@@ -28,22 +28,22 @@
 }
 
 body.light-theme {
-  --bg-base: #f9f9f9;
-  --bg-panel: #ffffff;
-  --bg-panel-hover: #f0f0f0;
-  --bg-glow: rgba(0, 0, 0, 0.03);
+  --bg-base: #FCF9F2;
+  --bg-panel: #FDFBF7;
+  --bg-panel-hover: #F5EFE6;
+  --bg-glow: rgba(210, 166, 121, 0.1);
   
-  --accent: #000000;
-  --accent-hover: #333333;
-  --accent-muted: #888888;
+  --accent: #D2A679;
+  --accent-hover: #C29668;
+  --accent-muted: #B8A89A;
   --error: #ff3b30;
   
-  --text-main: #111111;
-  --text-muted: #666666;
-  --text-highlight: #000000;
+  --text-main: #3E2F24;
+  --text-muted: #8E7A6B;
+  --text-highlight: #2A1D13;
   
-  --border-color: #e5e5e5;
-  --border-focus: #999999;
+  --border-color: #EBDCCB;
+  --border-focus: #D2A679;
   
   --btn-primary-text: #ffffff;
 }

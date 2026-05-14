@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useS3 } from '../hooks/useS3';
-import { ListObjectsV2Command, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3';
-import { Folder, File as FileIcon, ChevronRight, Upload, Trash2, Edit2, Database } from 'lucide-react';
+import { ListObjectsV2Command, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Folder, File as FileIcon, ChevronRight, Upload, Trash2, Edit2, Database, Download, RefreshCw } from 'lucide-react';
 
 interface FileItem {
   key: string;
   name: string;
   isFolder: boolean;
   size?: number;
+  lastModified?: Date;
 }
 
 export function Explorer() {
@@ -54,6 +56,7 @@ export function Explorer() {
             name,
             isFolder: false,
             size: file.Size,
+            lastModified: file.LastModified,
           };
         });
 
@@ -72,6 +75,10 @@ export function Explorer() {
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleRefresh = () => {
+    fetchItems(currentPrefix);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,6 +127,23 @@ export function Explorer() {
     }
   };
 
+  const handleDownload = async (e: React.MouseEvent, key: string) => {
+    e.stopPropagation();
+    if (!s3Client || !credentials) return;
+
+    try {
+      const getCommand = new GetObjectCommand({
+        Bucket: credentials.bucketName,
+        Key: key,
+      });
+      const url = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 });
+      window.open(url, '_blank');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to generate download link.');
+    }
+  };
+
   const handleRename = async (e: React.MouseEvent, oldKey: string, oldName: string) => {
     e.stopPropagation();
     if (!s3Client || !credentials) return;
@@ -161,6 +185,17 @@ export function Explorer() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const formatDate = (date?: Date) => {
+    if (!date) return '-';
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   const breadcrumbs = currentPrefix.split('/').filter(Boolean);
 
   return (
@@ -178,10 +213,16 @@ export function Explorer() {
             );
           })}
         </div>
-        <button className="btn-primary" onClick={handleUploadClick} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
-          <Upload size={16} />
-          Upload
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <button className="btn-primary" onClick={handleRefresh} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', background: 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)' }}>
+            <RefreshCw size={16} />
+            Refresh
+          </button>
+          <button className="btn-primary" onClick={handleUploadClick} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+            <Upload size={16} />
+            Upload
+          </button>
+        </div>
         <input 
           type="file" 
           ref={fileInputRef} 
@@ -198,39 +239,60 @@ export function Explorer() {
           <p className="loading-text">Loading...</p>
         </div>
       ) : (
-        <div className="file-grid">
-          {items.length === 0 && !error && (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-muted)', padding: '3rem' }}>
-              No items found in this location.
-            </div>
-          )}
-          
-          {items.map((item, index) => (
-            <div 
-              key={item.key} 
-              className="glass-panel file-item"
-              style={{ animationDelay: `${index * 0.05}s` }}
-              onClick={() => item.isFolder ? handleNavigate(item.key) : null}
-            >
-              {item.isFolder ? (
-                <Folder size={40} className="file-item-icon" />
-              ) : (
-                <FileIcon size={40} className="file-item-icon" />
+        <div className="file-list-container">
+          <table className="file-list-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Date Uploaded</th>
+                <th>Size</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.length === 0 && !error && (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem' }}>
+                    No items found in this location.
+                  </td>
+                </tr>
               )}
-              <span className="file-item-name" title={item.name}>{item.name}</span>
-              {!item.isFolder && <span className="file-item-size">{formatSize(item.size)}</span>}
-              {!item.isFolder && (
-                <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', display: 'flex', gap: '0.25rem' }} className="file-actions">
-                  <div className="action-icon" onClick={(e) => handleRename(e, item.key, item.name)} title="Rename">
-                    <Edit2 size={16} />
-                  </div>
-                  <div className="action-icon action-delete" onClick={(e) => handleDelete(e, item.key)} title="Delete">
-                    <Trash2 size={16} />
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+              {items.map((item, index) => (
+                <tr key={item.key} style={{ animationDelay: `${index * 0.05}s` }}>
+                  <td 
+                    className="file-item-name-cell"
+                    onClick={() => item.isFolder ? handleNavigate(item.key) : null}
+                  >
+                    {item.isFolder ? (
+                      <Folder size={20} className="file-item-icon" />
+                    ) : (
+                      <FileIcon size={20} className="file-item-icon" />
+                    )}
+                    <span title={item.name}>{item.name}</span>
+                  </td>
+                  <td>{formatDate(item.lastModified)}</td>
+                  <td>{item.isFolder ? '-' : formatSize(item.size)}</td>
+                  <td>
+                    <div className="action-buttons">
+                      {!item.isFolder && (
+                        <>
+                          <div className="action-icon" onClick={(e) => handleDownload(e, item.key)} title="Download">
+                            <Download size={16} />
+                          </div>
+                          <div className="action-icon" onClick={(e) => handleRename(e, item.key, item.name)} title="Rename">
+                            <Edit2 size={16} />
+                          </div>
+                          <div className="action-icon action-delete" onClick={(e) => handleDelete(e, item.key)} title="Delete">
+                            <Trash2 size={16} />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
