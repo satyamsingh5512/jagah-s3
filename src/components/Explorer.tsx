@@ -122,7 +122,11 @@ export function Explorer() {
       fetchItems(currentPrefix);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to delete file.');
+      if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+        setError('Network Error: Your S3 bucket CORS configuration likely blocks the DELETE method. Please add "DELETE" to AllowedMethods in your AWS bucket settings.');
+      } else {
+        setError(err.message || 'Failed to delete file.');
+      }
       setLoading(false);
     }
   };
@@ -200,26 +204,26 @@ export function Explorer() {
 
   return (
     <div className="explorer-container">
-      <div className="explorer-header glass-panel" style={{ padding: '1rem', marginBottom: '1.5rem', borderRadius: '12px' }}>
+      <div className="explorer-header">
         <div className="breadcrumbs">
           <span className="breadcrumb-item" onClick={() => handleNavigate('')}>Root</span>
           {breadcrumbs.map((crumb, index) => {
             const prefix = breadcrumbs.slice(0, index + 1).join('/') + '/';
             return (
-              <span key={prefix} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <ChevronRight size={16} className="breadcrumb-separator" />
+              <span key={prefix} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <ChevronRight size={14} className="breadcrumb-separator" />
                 <span className="breadcrumb-item" onClick={() => handleNavigate(prefix)}>{crumb}</span>
               </span>
             );
           })}
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <button className="btn-primary" onClick={handleRefresh} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', background: 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)' }}>
-            <RefreshCw size={16} />
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button className="btn-secondary" onClick={handleRefresh}>
+            <RefreshCw size={14} />
             Refresh
           </button>
-          <button className="btn-primary" onClick={handleUploadClick} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
-            <Upload size={16} />
+          <button className="btn-primary" onClick={handleUploadClick}>
+            <Upload size={14} />
             Upload
           </button>
         </div>
