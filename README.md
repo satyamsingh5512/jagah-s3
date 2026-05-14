@@ -1,10 +1,10 @@
 ```mermaid
 flowchart TB
-  User[User in Browser]
-  UI[Jagah React UI]
-  Mem[In-memory AWS credentials]
-  SDK[AWS SDK for JavaScript (S3Client)]
-  S3[(Amazon S3 Bucket)]
+  User["User in Browser"]
+  UI["Jagah React UI"]
+  Mem["In-memory AWS credentials"]
+  SDK["AWS SDK for JavaScript (S3Client)"]
+  S3[("Amazon S3 Bucket")]
 
   User --> UI
   UI --> Mem
