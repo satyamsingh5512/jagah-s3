@@ -2,43 +2,54 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1024px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  height: 100vh;
+  padding: 1.5rem 2rem;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-/* Header */
+/* ===== HEADER ===== */
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 2rem;
-  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
   animation: fadeIn 0.6s ease forwards;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .brand h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: var(--text-highlight);
+  white-space: nowrap;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .current-bucket {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .current-bucket strong {
@@ -46,46 +57,46 @@
   font-weight: 500;
 }
 
-/* Login Layout */
+/* ===== LOGIN LAYOUT ===== */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  flex: 1;
   animation: fadeIn 0.8s ease forwards;
   gap: 4rem;
-  padding: 0 1rem;
+  padding: 2rem 1rem;
 }
 
 .login-info {
   flex: 1;
-  max-width: 450px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
 .login-info h2 {
-  font-size: 2.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
   color: var(--text-highlight);
   line-height: 1.2;
 }
 
 .login-info p {
   color: var(--text-muted);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 0.95rem;
+  line-height: 1.7;
 }
 
 .ephemeral-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.875rem;
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-highlight);
   font-weight: 500;
   width: fit-content;
@@ -95,56 +106,39 @@
   flex: 1;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .login-form {
   width: 100%;
   max-width: 400px;
-  padding: 2.5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
-/* Responsiveness */
+/* ===== TABLET BREAKPOINT (≤860px) ===== */
 @media (max-width: 860px) {
   .login-container {
     flex-direction: column;
     text-align: center;
     gap: 2rem;
-    padding: 2rem 1rem;
-    height: auto;
+    padding: 1.5rem 1rem;
   }
-  
+
   .login-info {
     align-items: center;
+    max-width: 100%;
   }
-  
-  .login-info h2 {
-    font-size: 2rem;
-  }
-}
 
-@media (max-width: 600px) {
-  .app-header {
-    flex-direction: column;
-    gap: 1.5rem;
-    align-items: flex-start;
-  }
-  
-  .header-actions {
+  .login-form-wrapper {
     width: 100%;
-    justify-content: space-between;
+    align-items: stretch;
   }
-  
-  .explorer-header {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
-  }
-  
-  .file-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+
+  .login-form {
+    max-width: 100%;
   }
 }
 
@@ -190,8 +184,9 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   animation: fadeIn 0.8s ease forwards;
+  min-height: 0;
 }
 
 .explorer-header {
@@ -246,6 +241,7 @@
 .file-list-container {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -324,6 +320,13 @@
   opacity: 1;
 }
 
+/* Always show actions on touch devices */
+@media (hover: none) {
+  .file-actions {
+    opacity: 1;
+  }
+}
+
 .action-icon {
   padding: 0.25rem;
   color: var(--text-muted);
@@ -331,6 +334,12 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
+  /* Ensure minimum tap target size on mobile */
+  min-width: 28px;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-icon:hover {
@@ -434,10 +443,111 @@
   opacity: 1;
 }
 
+/* ===== MOBILE BREAKPOINT (≤600px) ===== */
 @media (max-width: 600px) {
+  .app-container {
+    padding: 1rem;
+  }
+
+  .app-header {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .brand h1 {
+    font-size: 1.2rem;
+  }
+
+  .current-bucket {
+    max-width: 120px;
+    font-size: 0.78rem;
+  }
+
   .app-footer {
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
     text-align: center;
+  }
+
+  .explorer-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .explorer-header > div:last-of-type {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* Responsive table — hide non-essential columns */
+  .file-list-table th:nth-child(2),
+  .file-list-table td:nth-child(2) {
+    display: none;
+  }
+
+  .file-list-table th:nth-child(3),
+  .file-list-table td:nth-child(3) {
+    display: none;
+  }
+
+  .file-list-table th,
+  .file-list-table td {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .file-item-name-cell {
+    gap: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .action-icon {
+    padding: 0.4rem;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-form {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .login-info h2 {
+    font-size: 1.6rem;
+  }
+
+  .breadcrumbs {
+    font-size: 0.8rem;
+  }
+}
+
+/* ===== SMALL MOBILE (≤400px) ===== */
+@media (max-width: 400px) {
+  .app-container {
+    padding: 0.75rem;
+  }
+
+  .brand h1 {
+    font-size: 1.1rem;
+  }
+
+  .header-actions {
+    gap: 0.5rem;
+  }
+
+  .file-list-table th,
+  .file-list-table td {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .action-buttons {
+    gap: 0.25rem;
+  }
+
+  .login-form {
+    padding: 1.25rem 1rem;
+    gap: 1rem;
   }
 }

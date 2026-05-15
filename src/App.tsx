@@ -67,7 +67,7 @@ function MainApp() {
         </div>
       </header>
 
-      <main style={{ flex: 1, overflow: 'hidden' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {!credentials ? <Login /> : <Explorer />}
       </main>
 
